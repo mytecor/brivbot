@@ -5,7 +5,8 @@
 	"type": "module",
 	"license": "MIT",
 	"scripts": {
-		"start": "nodemon -q --exec node --no-warnings --loader ts-node/esm/transpile-only ./index.ts"
+		"start": "node --no-warnings --loader ts-node/esm/transpile-only ./index.ts",
+		"dev": "nodemon -q --exec node --no-warnings --loader ts-node/esm/transpile-only ./index.ts"
 	},
 	"dependencies": {
 		"nodemon": "^2.0.15",
