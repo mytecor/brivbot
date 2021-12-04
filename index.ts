@@ -66,6 +66,11 @@ bot.on('inline_query', async (ctx) => {
 		])
 		.catch((e) => e)
 })
+
+if (process.env.NODE_ENV === 'production') {
+	;(bot as any).startWebhook('/' + BOT_TOKEN)
+}
+
 bot.launch()
 
 interface Article {
