@@ -68,7 +68,7 @@ bot.on('inline_query', async (ctx) => {
 })
 
 if (process.env.NODE_ENV === 'production') {
-	;(bot as any).startWebhook('/' + BOT_TOKEN, null, 5000)
+	;(bot as any).startWebhook('/' + BOT_TOKEN)
 }
 
 bot.launch()
