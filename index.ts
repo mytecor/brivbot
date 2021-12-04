@@ -95,7 +95,7 @@ async function matchId(query: string) {
 		query = await fetch('https://' + match).then((res) => res.url)
 	}
 
-	let [_, id] = query.match(/:\/\/(?:geekr\.vercel\.app|habr\.com)\/.*?(\d+)/) ?? []
+	let [_, id] = query.match(/(?:geekr\.vercel\.app|habr\.com)\/.*?(\d+)/) ?? []
 
 	return id
 }
