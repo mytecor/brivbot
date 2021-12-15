@@ -28,8 +28,9 @@ bot.on('message', async (ctx) => {
 	let id = await matchId(text)
 
 	if (id) {
+		let article = await getArticle(id)
 		ctx
-			.reply(getIvUrl(id), {
+			.reply(getIvUrl(id, article.etag), {
 				reply_to_message_id: message_id
 			})
 			.catch((e) => e)
@@ -60,7 +61,7 @@ bot.on('inline_query', async (ctx) => {
 				thumb_url: article.metadata.shareImageUrl,
 				description: article.metadata.metaDescription,
 				input_message_content: {
-					message_text: getIvUrl(id)
+					message_text: getIvUrl(id, article.etag)
 				}
 			}
 		])
@@ -87,10 +88,15 @@ interface Article {
 	tags: Array<{
 		titleHtml: string
 	}>
+	etag: string
 }
 
 function getArticle(id: string): Promise<Article> {
-	return fetch(`https://habr.com/kek/v2/articles/${id}`).then((res) => res.json()) as any
+	return fetch(`https://habr.com/kek/v2/articles/${id}`).then(async (res) => {
+		let article = (await res.json()) as Article
+		article.etag = res.headers.get('etag')?.slice(3, 7) ?? ''
+		return article
+	}) as any
 }
 
 async function matchId(query: string) {
@@ -105,6 +111,6 @@ async function matchId(query: string) {
 	return id
 }
 
-function getIvUrl(id: string) {
-	return `https://a.devs.today/habr.com/p/${id}`
+function getIvUrl(id: string, etag: string) {
+	return `https://a.devs.today/habr.com/p/${id}${etag ? `?${etag}` : ''}`
 }
