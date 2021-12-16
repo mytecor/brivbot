@@ -16,7 +16,10 @@ export interface Article {
 	etag: string
 }
 
-export function getArticle(id: string): Promise<Article> {
+export function getArticle(id?: string): Promise<Article> {
+	if (!id) {
+		throw Error('Not found')
+	}
 	return fetch(`https://habr.com/kek/v2/articles/${id}`).then(async (res) => {
 		let article = (await res.json()) as Article
 		if (res.status !== 200) {
@@ -34,7 +37,8 @@ export async function matchId(query: string) {
 		query = await fetch('https://' + match).then((res) => res.url)
 	}
 
-	let [_, id] = query.match(/(?:geekr\.vercel\.app|habr\.com)\/.*?(\d+)/) ?? []
+	let [_, id] =
+		query.match(/(?:geekr\.vercel\.app|habr\.com)\/.*?(\d+)/) ?? ([] as [string?, string?])
 
 	return id
 }

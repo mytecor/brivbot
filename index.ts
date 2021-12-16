@@ -46,14 +46,6 @@ bot.on('message', async (ctx) => {
 bot.on('inline_query', async (ctx) => {
 	let id = await matchId(ctx.inlineQuery.query)
 
-	if (!id) {
-		await ctx.answerInlineQuery([], {
-			switch_pm_parameter: 'not_found',
-			switch_pm_text: 'No article found'
-		})
-		return
-	}
-
 	let article = await getArticle(id).catch(async (e) => {
 		await ctx.answerInlineQuery([], {
 			switch_pm_parameter: 'not_found',
@@ -64,13 +56,13 @@ bot.on('inline_query', async (ctx) => {
 
 	await ctx.answerInlineQuery([
 		{
-			id,
+			id: id!,
 			type: 'article',
 			title: article.titleHtml,
 			thumb_url: article.metadata.shareImageUrl,
 			description: article.metadata.metaDescription,
 			input_message_content: {
-				message_text: getIvUrl(id, article.etag)
+				message_text: getIvUrl(id!, article.etag)
 			}
 		}
 	])
