@@ -1,5 +1,5 @@
 import { Telegraf } from 'telegraf'
-import fetch from 'node-fetch'
+import { getArticle, getIvUrl, matchId } from './utils.js'
 
 await import('dotenv').then((res) => res.config())
 
@@ -9,6 +9,8 @@ if (!BOT_TOKEN) {
 }
 
 let bot = new Telegraf(BOT_TOKEN)
+
+bot.catch(console.log)
 
 bot.command('/start', (ctx) => {
 	ctx.reply('Habr links, please')
@@ -28,12 +30,16 @@ bot.on('message', async (ctx) => {
 	let id = await matchId(text)
 
 	if (id) {
-		let article = await getArticle(id)
-		ctx
-			.reply(getIvUrl(id, article.etag), {
+		let article = await getArticle(id).catch(async (e) => {
+			await ctx.reply('Error: ' + e.message, {
 				reply_to_message_id: message_id
 			})
-			.catch((e) => e)
+			throw e
+		})
+
+		await ctx.reply(getIvUrl(id, article.etag), {
+			reply_to_message_id: message_id
+		})
 	}
 })
 
@@ -41,31 +47,33 @@ bot.on('inline_query', async (ctx) => {
 	let id = await matchId(ctx.inlineQuery.query)
 
 	if (!id) {
-		ctx
-			.answerInlineQuery([], {
-				switch_pm_parameter: 'not_found',
-				switch_pm_text: 'No article found'
-			})
-			.catch((e) => e)
+		await ctx.answerInlineQuery([], {
+			switch_pm_parameter: 'not_found',
+			switch_pm_text: 'No article found'
+		})
 		return
 	}
 
-	let article = await getArticle(id)
+	let article = await getArticle(id).catch(async (e) => {
+		await ctx.answerInlineQuery([], {
+			switch_pm_parameter: 'not_found',
+			switch_pm_text: 'Error: ' + e.message
+		})
+		throw e
+	})
 
-	ctx
-		.answerInlineQuery([
-			{
-				id,
-				type: 'article',
-				title: article.titleHtml,
-				thumb_url: article.metadata.shareImageUrl,
-				description: article.metadata.metaDescription,
-				input_message_content: {
-					message_text: getIvUrl(id, article.etag)
-				}
+	await ctx.answerInlineQuery([
+		{
+			id,
+			type: 'article',
+			title: article.titleHtml,
+			thumb_url: article.metadata.shareImageUrl,
+			description: article.metadata.metaDescription,
+			input_message_content: {
+				message_text: getIvUrl(id, article.etag)
 			}
-		])
-		.catch((e) => e)
+		}
+	])
 })
 
 if (process.env.NODE_ENV === 'production') {
@@ -73,44 +81,3 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 bot.launch()
-
-interface Article {
-	id: string
-	author: {
-		alias: string
-	}
-	titleHtml: string
-	textHtml: string
-	metadata: {
-		shareImageUrl: string
-		metaDescription: string
-	}
-	tags: Array<{
-		titleHtml: string
-	}>
-	etag: string
-}
-
-function getArticle(id: string): Promise<Article> {
-	return fetch(`https://habr.com/kek/v2/articles/${id}`).then(async (res) => {
-		let article = (await res.json()) as Article
-		article.etag = res.headers.get('etag')?.slice(3, 7) ?? ''
-		return article
-	}) as any
-}
-
-async function matchId(query: string) {
-	let [match] = query.match(/amp\.gs\/\w+/) ?? []
-
-	if (match) {
-		query = await fetch('https://' + match).then((res) => res.url)
-	}
-
-	let [_, id] = query.match(/(?:geekr\.vercel\.app|habr\.com)\/.*?(\d+)/) ?? []
-
-	return id
-}
-
-function getIvUrl(id: string, etag: string) {
-	return `https://a.devs.today/habr.com/p/${id}${etag ? `?${etag}` : ''}`
-}
