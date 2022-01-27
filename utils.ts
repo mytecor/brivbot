@@ -38,7 +38,8 @@ export async function matchId(query: string) {
 	}
 
 	let [_, id] =
-		query.match(/(?:geekr\.vercel\.app|habr\.com)\/.*?(\d+)/) ?? ([] as [string?, string?])
+		query.match(/(?:geekr\.vercel\.app\/p|habr.com\/(?:.*\/blog|p|post))\/?(\d+)/) ??
+		([] as [string?, string?])
 
 	return id
 }
