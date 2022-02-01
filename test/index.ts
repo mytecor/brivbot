@@ -7,6 +7,7 @@ it('Url parse', async () => {
 			'habr.com/ru/company/testComp123/blog/1/?test=123',
 			'geekr.vercel.app/p/1/',
 			'habr.com/post/1/',
+			'habr.com/ru/post/1/',
 			'habr.com/p/1/',
 			'habr.com/p/1'
 		].map(matchId)
