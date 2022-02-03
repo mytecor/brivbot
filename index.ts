@@ -10,7 +10,7 @@ if (!BOT_TOKEN) {
 
 let bot = new Telegraf(BOT_TOKEN)
 
-bot.catch(console.log)
+bot.catch(() => {})
 
 bot.command('/start', (ctx) => {
 	ctx.reply('Habr links, please')
