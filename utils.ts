@@ -16,10 +16,11 @@ export interface Article {
 	etag: string
 }
 
-export function getArticle(id?: string): Promise<Article> {
+export async function getArticle(id?: string): Promise<Article> {
 	if (!id) {
 		throw Error('Not found')
 	}
+
 	return fetch(`https://habr.com/kek/v2/articles/${id}`).then(async (res) => {
 		let article = (await res.json()) as Article
 		if (res.status !== 200) {
@@ -27,7 +28,7 @@ export function getArticle(id?: string): Promise<Article> {
 		}
 		article.etag = res.headers.get('etag')?.slice(3, 7) ?? ''
 		return article
-	}) as any
+	})
 }
 
 export async function matchId(query: string) {
