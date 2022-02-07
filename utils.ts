@@ -1,6 +1,7 @@
 import fetch from 'node-fetch'
 
 export interface Article {
+	id: string
 	author: {
 		alias: string
 	}
@@ -26,6 +27,7 @@ export async function getArticle(id?: string): Promise<Article> {
 		if (res.status !== 200) {
 			throw Error(res.statusText)
 		}
+		article.id = id
 		article.etag = res.headers.get('etag')?.slice(3, 7) ?? ''
 		return article
 	})
@@ -46,6 +48,10 @@ export async function matchId(query: string) {
 	return id
 }
 
-export function getIvUrl(id: string, etag: string) {
+export function getIvUrl({ id, etag }: Article) {
 	return `https://a.devs.today/habr.com/p/${id}${etag ? `?${etag}` : ''}`
+}
+
+export function formatMessage(article: Article) {
+	return `[${article.titleHtml}](${getIvUrl(article)})`
 }

@@ -1,5 +1,5 @@
 import { Telegraf } from 'telegraf'
-import { getArticle, getIvUrl, matchId } from './utils.js'
+import { formatMessage, getArticle, getIvUrl, matchId } from './utils.js'
 
 await import('dotenv').then((res) => res.config())
 
@@ -37,7 +37,7 @@ bot.on('message', async (ctx) => {
 			throw e
 		})
 
-		await ctx.reply(getIvUrl(id, article.etag), {
+		await ctx.replyWithMarkdown(formatMessage(article), {
 			reply_to_message_id: message_id
 		})
 	}
@@ -62,7 +62,8 @@ bot.on('inline_query', async (ctx) => {
 			thumb_url: article.metadata.shareImageUrl,
 			description: article.metadata.metaDescription,
 			input_message_content: {
-				message_text: getIvUrl(id!, article.etag)
+				message_text: formatMessage(article),
+				parse_mode: 'Markdown'
 			}
 		}
 	])
