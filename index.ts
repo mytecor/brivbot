@@ -37,7 +37,7 @@ bot.on('message', async (ctx) => {
 			throw e
 		})
 
-		await ctx.replyWithMarkdown(formatMessage(article), {
+		await ctx.replyWithHTML(formatMessage(article), {
 			reply_to_message_id: message_id
 		})
 	}
@@ -63,7 +63,7 @@ bot.on('inline_query', async (ctx) => {
 			description: article.metadata.metaDescription,
 			input_message_content: {
 				message_text: formatMessage(article),
-				parse_mode: 'Markdown'
+				parse_mode: 'HTML'
 			}
 		}
 	])

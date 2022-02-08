@@ -53,5 +53,5 @@ export function getIvUrl({ id, etag }: Article) {
 }
 
 export function formatMessage(article: Article) {
-	return `[${article.titleHtml}](${getIvUrl(article)})`
+	return `<a href="${getIvUrl(article)}">${article.titleHtml}</a>`
 }
