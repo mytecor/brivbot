@@ -5,10 +5,11 @@ describe('Url parser', () => {
 	it('Allowed', async () => {
 		let res = await Promise.all(
 			[
+				'geekr.vercel.app/p/1/',
+				'geekr.vercel.app/post/1',
 				'habr.com/ru/company/testComp123/blog/1/?utm_source=telegram',
 				'habr.com/ru/article/1/',
 				'habr.com/ru/news/t/1/',
-				'geekr.vercel.app/p/1/',
 				'habr.com/post/1/',
 				'habr.com/ru/post/1/',
 				'habr.com/p/1/',
